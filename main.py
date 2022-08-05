@@ -5,12 +5,14 @@ import requests
 import os
 
 # Function to search the track infos.
-def search_track(track, year):
-    music = sp.search(q=f"track:{track} year:{year}", limit=1, type="track")["tracks"]["items"][0]
-    try:
-        music_uri = music["uri"]
-    except IndexError:
-        print(f"{track} doesn't exist in Spotify. Skipped.")
+def search_track(track_list, year):
+    music_uri = []
+    for msc in track_list:
+        music = sp.search(q=f"track:{msc} year:{year}", limit=1, type="track")
+        try:
+            music_uri.append(music["tracks"]["items"][0]["uri"])
+        except IndexError:
+            print(f"{msc} doesn't exist in Spotify. Skipped.")
     return music_uri
 #-------------------------------------------##-------------------------------------------#
 date = input("Para que ano deseja viajar? Digite a data neste exato formato AAAA-MM-DD: ")
@@ -36,7 +38,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIFY_CLIENT_ID,
                                                cache_path="token.txt"))
 user_id = sp.current_user()["id"]
 # Select the music URI's and saved in a list.
-music_uri_list = [search_track(track=msc, year=year) for msc in top_100_song]
+music_uri_list = search_track(track_list=top_100_song, year=year)
 # Create and add the music on a playlist.
 playlist = sp.user_playlist_create(user=user_id,
                                    name=f"{date} Billboard 100",
